@@ -116,12 +116,13 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 	fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tOnResult set from simple Execute\n", e.options.TemplateID)
 	//fmt.Println(ctx.OnResult)
 	ctx.OnResult = func(event *output.InternalWrappedEvent) {
-		wrappedTemplate := e.options.TemplateID
-		fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, e.options.TemplateID, event.InternalEvent["template-id"])
 		if event == nil {
 			// something went wrong
+			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult event == nil => something went wrong\n", e.options.TemplateID)
 			return
 		}
+		wrappedTemplate := e.options.TemplateID
+		fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, e.options.TemplateID, event.InternalEvent["template-id"])
 		// check for internal true matcher event
 		if event.HasOperatorResult() && event.OperatorsResult.Matched && event.OperatorsResult.Operators != nil {
 			// note all matchers should have internal:true if it is a combination then print it
