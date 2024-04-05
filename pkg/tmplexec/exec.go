@@ -113,7 +113,11 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 		}
 	}
 
+	fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tOnResult set from simple Execute\n", e.options.TemplateID)
+	//fmt.Println(ctx.OnResult)
 	ctx.OnResult = func(event *output.InternalWrappedEvent) {
+		wrappedTemplate := e.options.TemplateID
+		fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, e.options.TemplateID, event.InternalEvent["template-id"])
 		if event == nil {
 			// something went wrong
 			return
@@ -147,6 +151,7 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 			}
 		}
 	}
+	//fmt.Println(ctx.OnResult)
 	var errx error
 
 	// Note: this is required for flow executor
@@ -167,7 +172,9 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 		}
 		errx = flowexec.ExecuteWithResults(ctx)
 	} else {
+		fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tExecuteWithResults BEFORE\n", e.options.TemplateID)
 		errx = e.engine.ExecuteWithResults(ctx)
+		fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tExecuteWithResults AFTER\n", e.options.TemplateID)
 	}
 
 	if lastMatcherEvent != nil {

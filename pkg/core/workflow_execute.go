@@ -16,6 +16,14 @@ import (
 
 const workflowStepExecutionError = "[%s] Could not execute workflow step: %s\n"
 
+/*
+TODO:
+ - create a test to validate the issue
+ - remove unnecessary fields from ScanContext
+ - restructre workflow logic (subtemplates, matchers)
+ - update DESIGN.md
+*/
+
 // executeWorkflow runs a workflow on an input and returns true or false
 func (e *Engine) executeWorkflow(ctx *scan.ScanContext, w *workflows.Workflow) bool {
 	results := &atomic.Bool{}
@@ -40,7 +48,7 @@ func (e *Engine) executeWorkflow(ctx *scan.ScanContext, w *workflows.Workflow) b
 		func(template *workflows.WorkflowTemplate) {
 			defer swg.Done()
 
-			if err := e.runWorkflowStep(template, ctx, results, &swg, w); err != nil {
+			if err := e.runWorkflowStep(template, *ctx, results, &swg, w); err != nil {
 				gologger.Warning().Msgf(workflowStepExecutionError, template.Template, err)
 			}
 		}(template)
@@ -51,10 +59,14 @@ func (e *Engine) executeWorkflow(ctx *scan.ScanContext, w *workflows.Workflow) b
 
 // runWorkflowStep runs a workflow step for the workflow. It executes the workflow
 // in a recursive manner running all subtemplates and matchers.
-func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan.ScanContext, results *atomic.Bool, swg *sizedwaitgroup.SizedWaitGroup, w *workflows.Workflow) error {
+func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx scan.ScanContext, results *atomic.Bool, swg *sizedwaitgroup.SizedWaitGroup, w *workflows.Workflow) error {
 	var firstMatched bool
 	var err error
 	var mainErr error
+
+	fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\trunWorkflowStep\n", template.Template)
+	//fmt.Print("\t\t\t\t\t\t\t\t\t\t\t\t")
+	//fmt.Println(template.Subtemplates)
 
 	if len(template.Matchers) == 0 {
 		for _, executer := range template.Executers {
@@ -62,6 +74,9 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 
 			// Don't print results with subtemplates, only print results on template.
 			if len(template.Subtemplates) > 0 {
+				fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Subtemplates", template.Template)
+				fmt.Println(template.Subtemplates)
+				fmt.Println(ctx.OnResult)
 				ctx.OnResult = func(result *output.InternalWrappedEvent) {
 					if result.OperatorsResult == nil {
 						return
@@ -89,10 +104,11 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 						}
 					}
 				}
-				_, err = executer.Executer.ExecuteWithResults(ctx)
+				fmt.Println(ctx.OnResult)
+				_, err = executer.Executer.ExecuteWithResults(&ctx)
 			} else {
 				var matched bool
-				matched, err = executer.Executer.Execute(ctx)
+				matched, err = executer.Executer.Execute(&ctx)
 				if matched {
 					firstMatched = true
 				}
@@ -117,10 +133,17 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 		for _, executer := range template.Executers {
 			executer.Options.Progress.AddToTotal(int64(executer.Executer.Requests()))
 
+			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Matchers\n", template.Template)
+			//fmt.Println(template.Matchers[0].Subtemplates[0].Template)
+			//fmt.Println(ctx.OnResult)
 			ctx.OnResult = func(event *output.InternalWrappedEvent) {
+				wrappedTemplate := template.Template
+				fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, template.Template, event.InternalEvent["template-id"])
 				if event.OperatorsResult == nil {
 					return
 				}
+				//fmt.Println(event.OperatorsResult.Operators.TemplateID)
+				//fmt.Println(event.OperatorsResult.Matches)
 
 				if event.OperatorsResult.Extracts != nil {
 					for k, v := range event.OperatorsResult.Extracts {
@@ -146,7 +169,9 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 					}
 				}
 			}
-			_, err := executer.Executer.ExecuteWithResults(ctx)
+			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults BEFORE\n", template.Template)
+			_, err := executer.Executer.ExecuteWithResults(&ctx)
+			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults AFTER\n", template.Template)
 			if err != nil {
 				if len(template.Executers) == 1 {
 					mainErr = err
