@@ -68,7 +68,7 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 	var err error
 	var mainErr error
 
-	fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\trunWorkflowStep\n", template.Template)
+	//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\trunWorkflowStep\n", template.Template)
 	//fmt.Print("\t\t\t\t\t\t\t\t\t\t\t\t")
 	//fmt.Println(template.Subtemplates)
 
@@ -137,12 +137,12 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 		for _, executer := range template.Executers {
 			executer.Options.Progress.AddToTotal(int64(executer.Executer.Requests()))
 
-			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Matchers\n", template.Template)
+			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Matchers\n", template.Template)
 			//fmt.Println(template.Matchers[0].Subtemplates[0].Template)
 			//fmt.Println(ctx.OnResult)
 			ctx.OnResult = func(event *output.InternalWrappedEvent) {
-				wrappedTemplate := template.Template
-				fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, template.Template, event.InternalEvent["template-id"])
+				//wrappedTemplate := template.Template
+				//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, template.Template, event.InternalEvent["template-id"])
 				if event.OperatorsResult == nil {
 					return
 				}
@@ -173,9 +173,9 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 					}
 				}
 			}
-			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults BEFORE\n", template.Template)
+			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults BEFORE\n", template.Template)
 			_, err := executer.Executer.ExecuteWithResults(ctx)
-			fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults AFTER\n", template.Template)
+			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults AFTER\n", template.Template)
 			if err != nil {
 				if len(template.Executers) == 1 {
 					mainErr = err
