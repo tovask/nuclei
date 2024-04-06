@@ -254,7 +254,8 @@ func (s *Service) getTagsUsingDetectionTemplates(input *contextargs.MetaInput) (
 		go func(template *templates.Template) {
 			defer sg.Done()
 			ctx := scan.NewScanContext(ctxArgs)
-			ctx.OnResult = func(event *output.InternalWrappedEvent) {
+			// ctx.OnResult = func(event *output.InternalWrappedEvent) {
+			err := template.Executer.ExecuteWithResults(ctx, func(event *output.InternalWrappedEvent) {
 				if event == nil {
 					return
 				}
@@ -293,9 +294,9 @@ func (s *Service) getTagsUsingDetectionTemplates(input *contextargs.MetaInput) (
 					// TBD: should we show or hide tech detection results? what about matcher-status flag?
 					_ = writer.WriteResult(event, s.opts.Output, s.opts.Progress, s.opts.IssuesClient)
 				}
-			}
+			})
 
-			_, err := template.Executer.ExecuteWithResults(ctx)
+			// _, err := template.Executer.ExecuteWithResults(ctx)
 			if err != nil {
 				gologger.Verbose().Msgf("[%s] error executing template: %s\n", aurora.BrightYellow(template.ID), err)
 				return

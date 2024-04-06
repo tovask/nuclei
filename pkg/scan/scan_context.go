@@ -24,7 +24,7 @@ type ScanContext struct {
 	Input *contextargs.Context
 
 	// callbacks or hooks
-	OnResult  func(e *output.InternalWrappedEvent)
+	// OnResult  func(e *output.InternalWrappedEvent)
 
 	// unexported state fields
 	errors   []error
@@ -61,9 +61,9 @@ func (s *ScanContext) LogEvent(e *output.InternalWrappedEvent) {
 		return
 	}
 
-	if s.OnResult != nil {
-		s.OnResult(e)
-	}
+	// if s.OnResult != nil {
+	// 	s.OnResult(e)
+	// }
 
 	if s.withEvents {
 		s.events = append(s.events, e)

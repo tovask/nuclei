@@ -302,14 +302,14 @@ func (e *ClusterExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 }
 
 // ExecuteWithResults executes the protocol requests and returns results instead of writing them.
-func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.ResultEvent, error) {
-	scanCtx := scan.NewScanContext(ctx.Input)
+func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
+	scanCtx := scan.NewScanContext(ctx.Input) // this seems to mixed here, why a new context is needed?
 	dynamicValues := make(map[string]interface{})
 
 	inputItem := ctx.Input.Clone()
 	if e.options.InputHelper != nil && ctx.Input.MetaInput.Input != "" {
 		if inputItem.MetaInput.Input = e.options.InputHelper.Transform(ctx.Input.MetaInput.Input, e.templateType); ctx.Input.MetaInput.Input == "" {
-			return nil, nil
+			return nil
 		}
 	}
 	err := e.requests.ExecuteWithResults(inputItem, dynamicValues, nil, func(event *output.InternalWrappedEvent) {
@@ -322,6 +322,7 @@ func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.R
 				event.InternalEvent["template-info"] = operator.templateInfo
 				event.Results = e.requests.MakeResultEvent(event)
 				scanCtx.LogEvent(event)
+				callback(event)
 			}
 		}
 	})
@@ -332,5 +333,6 @@ func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.R
 	if err != nil && e.options.HostErrorsCache != nil {
 		e.options.HostErrorsCache.MarkFailed(ctx.Input.MetaInput.Input, err)
 	}
-	return scanCtx.GenerateResult(), err
+	// return scanCtx.GenerateResult(), err
+	return err
 }

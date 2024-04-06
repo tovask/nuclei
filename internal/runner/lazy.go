@@ -78,7 +78,8 @@ func GetLazyAuthFetchCallback(opts *AuthLazyFetchOptions) authx.LazyFetchSecret 
 		}
 
 		var finalErr error
-		ctx.OnResult = func(e *output.InternalWrappedEvent) {
+		// ctx.OnResult = func(e *output.InternalWrappedEvent) {
+		err := tmpl.Executer.ExecuteWithResults(ctx, func(e *output.InternalWrappedEvent) {
 			if e == nil {
 				finalErr = fmt.Errorf("no result found for template: %s", d.TemplatePath)
 				return
@@ -108,8 +109,8 @@ func GetLazyAuthFetchCallback(opts *AuthLazyFetchOptions) authx.LazyFetchSecret 
 			}
 			// log result of template in result file/screen
 			_ = writer.WriteResult(e, opts.ExecOpts.Output, opts.ExecOpts.Progress, opts.ExecOpts.IssuesClient)
-		}
-		_, err := tmpl.Executer.ExecuteWithResults(ctx)
+		})
+		// _, err := tmpl.Executer.ExecuteWithResults(ctx)
 		if err != nil {
 			finalErr = err
 		}

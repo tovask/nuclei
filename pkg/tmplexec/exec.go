@@ -115,7 +115,8 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 
 	//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tOnResult set from simple Execute\n", e.options.TemplateID)
 	//fmt.Println(ctx.OnResult)
-	ctx.OnResult = func(event *output.InternalWrappedEvent) {
+	// ctx.OnResult = func(event *output.InternalWrappedEvent) {
+	cliExecutorCallback := func(event *output.InternalWrappedEvent) {
 		if event == nil {
 			// something went wrong
 			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult event == nil => something went wrong\n", e.options.TemplateID)
@@ -171,10 +172,10 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 			ctx.LogError(err)
 			return false, err
 		}
-		errx = flowexec.ExecuteWithResults(ctx)
+		errx = flowexec.ExecuteWithResults(ctx, cliExecutorCallback)
 	} else {
 		//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tExecuteWithResults BEFORE\n", e.options.TemplateID)
-		errx = e.engine.ExecuteWithResults(ctx)
+		errx = e.engine.ExecuteWithResults(ctx, cliExecutorCallback)
 		//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\t\tExecuteWithResults AFTER\n", e.options.TemplateID)
 	}
 
@@ -185,8 +186,9 @@ func (e *TemplateExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 }
 
 // ExecuteWithResults executes the protocol requests and returns results instead of writing them.
-func (e *TemplateExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.ResultEvent, error) {
-	err := e.engine.ExecuteWithResults(ctx)
-	ctx.LogError(err)
-	return ctx.GenerateResult(), err
+func (e *TemplateExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
+	return e.engine.ExecuteWithResults(ctx, callback)
+	// err := e.engine.ExecuteWithResults(ctx)
+	// ctx.LogError(err)
+	// return ctx.GenerateResult(), err
 }

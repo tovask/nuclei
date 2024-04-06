@@ -5,6 +5,7 @@ import (
 	"sync/atomic"
 
 	"github.com/projectdiscovery/gologger"
+	"github.com/projectdiscovery/nuclei/v3/pkg/output"
 	"github.com/projectdiscovery/nuclei/v3/pkg/input/provider"
 	"github.com/projectdiscovery/nuclei/v3/pkg/protocols/common/contextargs"
 	"github.com/projectdiscovery/nuclei/v3/pkg/scan"
@@ -26,11 +27,11 @@ func (e *Engine) executeAllSelfContained(alltemplates []*templates.Template, res
 			var match bool
 			ctx := scan.NewScanContext(contextargs.New())
 			if e.Callback != nil {
-				if results, err := template.Executer.ExecuteWithResults(ctx); err != nil {
-					for _, result := range results {
+				err = template.Executer.ExecuteWithResults(ctx, func(event *output.InternalWrappedEvent) {
+					for _, result := range event.Results {
 						e.Callback(result)
 					}
-				}
+				})
 
 				match = true
 			} else {
@@ -122,11 +123,11 @@ func (e *Engine) executeTemplateWithTargets(template *templates.Template, target
 				match = e.executeWorkflow(ctx, template.CompiledWorkflow)
 			default:
 				if e.Callback != nil {
-					if results, err := template.Executer.ExecuteWithResults(ctx); err != nil {
-						for _, result := range results {
+					err = template.Executer.ExecuteWithResults(ctx, func(event *output.InternalWrappedEvent) {
+						for _, result := range event.Results {
 							e.Callback(result)
 						}
-					}
+					})
 					match = true
 				} else {
 					match, err = template.Executer.Execute(ctx)
@@ -178,11 +179,11 @@ func (e *Engine) executeTemplatesOnTarget(alltemplates []*templates.Template, ta
 				match = e.executeWorkflow(ctx, template.CompiledWorkflow)
 			default:
 				if e.Callback != nil {
-					if results, err := template.Executer.ExecuteWithResults(ctx); err != nil {
-						for _, result := range results {
+					err = template.Executer.ExecuteWithResults(ctx, func(event *output.InternalWrappedEvent) {
+						for _, result := range event.Results {
 							e.Callback(result)
 						}
-					}
+					})
 					match = true
 				} else {
 					match, err = template.Executer.Execute(ctx)

@@ -43,7 +43,7 @@ func (m *MultiProtocol) Compile() error {
 }
 
 // ExecuteWithResults executes the template and returns results
-func (m *MultiProtocol) ExecuteWithResults(ctx *scan.ScanContext) error {
+func (m *MultiProtocol) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
 	// put all readonly args into template context
 	m.options.GetTemplateCtx(ctx.Input.MetaInput).Merge(m.readOnlyArgs)
 	// callback to process results from all protocols
@@ -53,6 +53,7 @@ func (m *MultiProtocol) ExecuteWithResults(ctx *scan.ScanContext) error {
 		}
 		// log event and generate result for the event
 		ctx.LogEvent(event)
+		callback(event)
 		// export dynamic values from operators (i.e internal:true)
 		if event.OperatorsResult != nil && len(event.OperatorsResult.DynamicValues) > 0 {
 			for k, v := range event.OperatorsResult.DynamicValues {

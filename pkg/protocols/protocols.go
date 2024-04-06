@@ -50,7 +50,7 @@ type Executer interface {
 	// Execute executes the protocol group and returns true or false if results were found.
 	Execute(ctx *scan.ScanContext) (bool, error)
 	// ExecuteWithResults executes the protocol requests and returns results instead of writing them.
-	ExecuteWithResults(ctx *scan.ScanContext) ([]*output.ResultEvent, error)
+	ExecuteWithResults(ctx *scan.ScanContext, callback OutputEventCallback) error
 }
 
 // ExecutorOptions contains the configuration options for executer clients

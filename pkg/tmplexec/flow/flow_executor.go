@@ -173,7 +173,7 @@ func (f *FlowExecutor) Compile() error {
 }
 
 // ExecuteWithResults executes the flow and returns results
-func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext) error {
+func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
 	f.ctx.Input = ctx.Input
 	// -----Load all types of variables-----
 	// add all input args to template context
@@ -201,8 +201,9 @@ func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext) error {
 		}
 	}()
 
-	if ctx.OnResult == nil {
+	if callback == nil {
 		return fmt.Errorf("output callback cannot be nil")
+		// sure, but when it is called?
 	}
 	// before running register set of builtins
 	if err := runtime.Set("set", func(call goja.FunctionCall) goja.Value {

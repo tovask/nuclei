@@ -199,12 +199,15 @@ func (m *mockExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 }
 
 // ExecuteWithResults executes the protocol requests and returns results instead of writing them.
-func (m *mockExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.ResultEvent, error) {
+// func (m *mockExecuter) ExecuteWithResults(ctx *scan.ScanContext) ([]*output.ResultEvent, error) {
+func (m *mockExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
 	if m.executeHook != nil {
 		m.executeHook(ctx.Input.MetaInput)
 	}
 	for _, output := range m.outputs {
+		callback(output)
 		ctx.LogEvent(output)
 	}
-	return ctx.GenerateResult(), nil
+	// return ctx.GenerateResult(), nil
+	return nil
 }

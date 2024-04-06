@@ -1,6 +1,7 @@
 package tmplexec
 
 import (
+	"github.com/projectdiscovery/nuclei/v3/pkg/protocols"
 	"github.com/projectdiscovery/nuclei/v3/pkg/scan"
 	"github.com/projectdiscovery/nuclei/v3/pkg/tmplexec/flow"
 	"github.com/projectdiscovery/nuclei/v3/pkg/tmplexec/generic"
@@ -25,7 +26,7 @@ type TemplateEngine interface {
 	Compile() error
 
 	// ExecuteWithResults executes the template and returns results
-	ExecuteWithResults(ctx *scan.ScanContext) error
+	ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error
 
 	// Name returns name of template engine
 	Name() string

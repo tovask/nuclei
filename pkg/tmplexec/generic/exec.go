@@ -35,7 +35,7 @@ func (g *Generic) Compile() error {
 }
 
 // ExecuteWithResults executes the template and returns results
-func (g *Generic) ExecuteWithResults(ctx *scan.ScanContext) error {
+func (g *Generic) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
 	dynamicValues := make(map[string]interface{})
 	if ctx.Input.HasArgs() {
 		ctx.Input.ForEach(func(key string, value interface{}) {
@@ -74,7 +74,8 @@ func (g *Generic) ExecuteWithResults(ctx *scan.ScanContext) error {
 			}
 			// for ExecuteWithResults : this callback will execute user defined callback and some error handling
 			// for Execute : this callback will print the result to output
-			ctx.LogEvent(event)
+			// ctx.LogEvent(event)
+			callback(event)
 		})
 		if err != nil {
 			ctx.LogError(err)

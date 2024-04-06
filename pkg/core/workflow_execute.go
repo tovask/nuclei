@@ -20,6 +20,7 @@ const workflowStepExecutionError = "[%s] Could not execute workflow step: %s\n"
 TODO:
  - create a test to validate the issue
  - remove unnecessary fields from ScanContext
+ - what is the purpose of the LogEvent in ScanContext?
  - turn back race detection
  - restructre workflow logic (subtemplates, matchers)
  - update DESIGN.md
@@ -82,7 +83,8 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 				//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Subtemplates", template.Template)
 				//fmt.Println(template.Subtemplates)
 				//fmt.Println(ctx.OnResult)
-				ctx.OnResult = func(result *output.InternalWrappedEvent) {
+				//ctx.OnResult = func(result *output.InternalWrappedEvent) {
+				err = executer.Executer.ExecuteWithResults(ctx, func(result *output.InternalWrappedEvent) {
 					if result.OperatorsResult == nil {
 						return
 					}
@@ -108,9 +110,9 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 							}
 						}
 					}
-				}
+				})
 				//fmt.Println(ctx.OnResult)
-				_, err = executer.Executer.ExecuteWithResults(ctx)
+				// _, err = executer.Executer.ExecuteWithResults(ctx)
 			} else {
 				var matched bool
 				matched, err = executer.Executer.Execute(ctx)
@@ -141,7 +143,8 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tOnResult set from workflow_execute under Matchers\n", template.Template)
 			//fmt.Println(template.Matchers[0].Subtemplates[0].Template)
 			//fmt.Println(ctx.OnResult)
-			ctx.OnResult = func(event *output.InternalWrappedEvent) {
+			// ctx.OnResult = func(event *output.InternalWrappedEvent) {
+			err = executer.Executer.ExecuteWithResults(ctx, func(event *output.InternalWrappedEvent) {
 				//wrappedTemplate := template.Template
 				//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s: OnResult %s %s\n", wrappedTemplate, template.Template, event.InternalEvent["template-id"])
 				if event.OperatorsResult == nil {
@@ -173,9 +176,9 @@ func (e *Engine) runWorkflowStep(template *workflows.WorkflowTemplate, ctx *scan
 						}(subtemplate)
 					}
 				}
-			}
+			})
 			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults BEFORE\n", template.Template)
-			_, err := executer.Executer.ExecuteWithResults(ctx)
+			// _, err := executer.Executer.ExecuteWithResults(ctx)
 			//fmt.Printf("\t\t\t\t\t\t\t\t\t\t\t%s:\tExecuteWithResults AFTER\n", template.Template)
 			if err != nil {
 				if len(template.Executers) == 1 {
