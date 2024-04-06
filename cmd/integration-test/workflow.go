@@ -16,6 +16,7 @@ var workflowTestcases = []TestCaseInfo{
 	{Path: "workflow/condition-matched.yaml", TestCase: &workflowConditionMatched{}},
 	{Path: "workflow/condition-unmatched.yaml", TestCase: &workflowConditionUnmatch{}},
 	{Path: "workflow/matcher-name.yaml", TestCase: &workflowMatcherName{}},
+	{Path: "workflow/condition-complex.yaml", TestCase: &workflowConditionComplex{}},
 	{Path: "workflow/http-value-share-workflow.yaml", TestCase: &workflowHttpKeyValueShare{}},
 	{Path: "workflow/dns-value-share-workflow.yaml", TestCase: &workflowDnsKeyValueShare{}},
 	{Path: "workflow/shared-cookie.yaml", TestCase: &workflowSharedCookies{}},
@@ -82,6 +83,25 @@ type workflowMatcherName struct{}
 
 // Execute executes a test case and returns an error if occurred
 func (h *workflowMatcherName) Execute(filePath string) error {
+	router := httprouter.New()
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Fprintf(w, "This is test matcher text")
+	})
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, debug)
+	if err != nil {
+		return err
+	}
+
+	return expectResultsCount(results, 1)
+}
+
+type workflowConditionComplex struct{}
+
+// Execute executes a test case and returns an error if occurred
+func (h *workflowConditionComplex) Execute(filePath string) error {
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprintf(w, "This is test matcher text")
