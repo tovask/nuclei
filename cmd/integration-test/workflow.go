@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 
 	"github.com/julienschmidt/httprouter"
 
@@ -114,7 +115,12 @@ func (h *workflowConditionComplex) Execute(filePath string) error {
 		return err
 	}
 
-	return expectResultsCount(results, 1)
+	for _, result := range results {
+		if !strings.Contains(result, "test-matcher-3") {
+			return fmt.Errorf("incorrect result: the \"basic-get-third:test-matcher-3\" and only that should be matched!\nResults:\n\t%s", strings.Join(results, "\n\t"))
+		}
+	}
+	return expectResultsCount(results, 2)
 }
 
 type workflowHttpKeyValueShare struct{}

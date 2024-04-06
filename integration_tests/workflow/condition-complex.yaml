@@ -12,3 +12,11 @@ workflows:
         subtemplates:
           - template: workflow/match-2.yaml
   - template: workflow/match-3.yaml
+  - template: workflow/match-2.yaml
+    matchers: 
+      - name: test-matcher
+        subtemplates:
+          - template: workflow/nomatch-1.yaml
+            subtemplates:
+              - template: workflow/match-1.yaml
+  - template: workflow/match-3.yaml

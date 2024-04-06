@@ -20,6 +20,7 @@ const workflowStepExecutionError = "[%s] Could not execute workflow step: %s\n"
 TODO:
  - create a test to validate the issue
  - remove unnecessary fields from ScanContext
+ - turn back race detection
  - restructre workflow logic (subtemplates, matchers)
  - update DESIGN.md
 */
