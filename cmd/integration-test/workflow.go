@@ -17,7 +17,7 @@ var workflowTestcases = []TestCaseInfo{
 	{Path: "workflow/condition-matched.yaml", TestCase: &workflowConditionMatched{}},
 	{Path: "workflow/condition-unmatched.yaml", TestCase: &workflowConditionUnmatch{}},
 	{Path: "workflow/matcher-name.yaml", TestCase: &workflowMatcherName{}},
-	{Path: "workflow/condition-complex.yaml", TestCase: &workflowConditionComplex{}},
+	{Path: "workflow/complex-conditions.yaml", TestCase: &workflowComplexConditions{}},
 	{Path: "workflow/http-value-share-workflow.yaml", TestCase: &workflowHttpKeyValueShare{}},
 	{Path: "workflow/dns-value-share-workflow.yaml", TestCase: &workflowDnsKeyValueShare{}},
 	{Path: "workflow/shared-cookie.yaml", TestCase: &workflowSharedCookies{}},
@@ -99,10 +99,10 @@ func (h *workflowMatcherName) Execute(filePath string) error {
 	return expectResultsCount(results, 1)
 }
 
-type workflowConditionComplex struct{}
+type workflowComplexConditions struct{}
 
 // Execute executes a test case and returns an error if occurred
-func (h *workflowConditionComplex) Execute(filePath string) error {
+func (h *workflowComplexConditions) Execute(filePath string) error {
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprintf(w, "This is test matcher text")
