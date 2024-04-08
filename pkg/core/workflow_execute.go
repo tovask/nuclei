@@ -18,10 +18,11 @@ const workflowStepExecutionError = "[%s] Could not execute workflow step: %s\n"
 
 /*
 TODO:
- - create a test to validate the issue
  - remove unnecessary fields from ScanContext
- - what is the purpose of the LogEvent in ScanContext?
- - turn back race detection
+ - create a flowcharts about the Execute/ExecuteWithResults and the result's way to output
+     what is the purpose of the LogEvent in ScanContext?
+     when should the ScanContext.LogEvent be called? or the LogError ...
+     maybe in TemplateExecuter.ExecuteWithResults ?
  - restructre workflow logic (subtemplates, matchers)
  - update DESIGN.md
 */

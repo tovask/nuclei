@@ -303,7 +303,7 @@ func (e *ClusterExecuter) Execute(ctx *scan.ScanContext) (bool, error) {
 
 // ExecuteWithResults executes the protocol requests and returns results instead of writing them.
 func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback protocols.OutputEventCallback) error {
-	scanCtx := scan.NewScanContext(ctx.Input) // this seems to mixed here, why a new context is needed?
+	//scanCtx := scan.NewScanContext(ctx.Input) // this seems to mixed here, why a new context is needed?
 	dynamicValues := make(map[string]interface{})
 
 	inputItem := ctx.Input.Clone()
@@ -321,7 +321,7 @@ func (e *ClusterExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback pro
 				event.InternalEvent["template-path"] = operator.templatePath
 				event.InternalEvent["template-info"] = operator.templateInfo
 				event.Results = e.requests.MakeResultEvent(event)
-				scanCtx.LogEvent(event)
+				//scanCtx.LogEvent(event)
 				callback(event)
 			}
 		}

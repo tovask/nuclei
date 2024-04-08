@@ -52,7 +52,7 @@ jobs:
         env:
           GH_ACTION: true
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-          PROTO: "workflow"
+          # PROTO: "workflow"
         run: |
           chmod +x run.sh
           bash run.sh ${{ matrix.os }}
