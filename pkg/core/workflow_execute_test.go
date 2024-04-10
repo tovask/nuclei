@@ -206,7 +206,7 @@ func (m *mockExecuter) ExecuteWithResults(ctx *scan.ScanContext, callback protoc
 	}
 	for _, output := range m.outputs {
 		callback(output)
-		ctx.LogEvent(output)
+		//ctx.LogEvent(output)
 	}
 	// return ctx.GenerateResult(), nil
 	return nil

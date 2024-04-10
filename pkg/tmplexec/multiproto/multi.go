@@ -52,7 +52,7 @@ func (m *MultiProtocol) ExecuteWithResults(ctx *scan.ScanContext, callback proto
 			return
 		}
 		// log event and generate result for the event
-		ctx.LogEvent(event)
+		//ctx.LogEvent(event)
 		callback(event)
 		// export dynamic values from operators (i.e internal:true)
 		if event.OperatorsResult != nil && len(event.OperatorsResult.DynamicValues) > 0 {

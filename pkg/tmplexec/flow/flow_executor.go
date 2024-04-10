@@ -43,6 +43,7 @@ type FlowExecutor struct {
 	// protocol requests and their callback functions
 	allProtocols   map[string][]protocols.Request
 	protoFunctions map[string]func(call goja.FunctionCall, runtime *goja.Runtime) goja.Value // reqFunctions contains functions that allow executing requests/protocols from js
+	callback       protocols.OutputEventCallback // result event callback
 
 	// logic related variables
 	results *atomic.Bool
@@ -50,9 +51,6 @@ type FlowExecutor struct {
 	// these are keys whose values are meant to be flatten before executing
 	// a request ex: if dynamic extractor returns ["value"] it will be converted to "value"
 	flattenKeys []string
-
-	// callback function to process output
-	callback protocols.OutputEventCallback
 }
 
 // NewFlowExecutor creates a new flow executor from a list of requests
@@ -186,6 +184,11 @@ func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext, callback protoc
 		})
 	}
 
+	if callback == nil {
+		return fmt.Errorf("output callback cannot be nil")
+	}
+	f.callback = callback
+
 	// get a new runtime from pool
 	runtime := GetJSRuntime(f.options.Options)
 	defer PutJSRuntime(runtime) // put runtime back to pool
@@ -203,12 +206,6 @@ func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext, callback protoc
 			f.ctx.LogError(fmt.Errorf("panic occurred while executing flow: %v", r))
 		}
 	}()
-
-	if callback == nil {
-		return fmt.Errorf("output callback cannot be nil")
-		// sure, but when it is called?
-	}
-	f.callback = callback
 
 	// before running register set of builtins
 	if err := runtime.Set("set", func(call goja.FunctionCall) goja.Value {
