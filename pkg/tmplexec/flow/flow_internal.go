@@ -77,7 +77,7 @@ func (f *FlowExecutor) protocolResultCallback(req protocols.Request, matcherStat
 		if result != nil {
 			// Note: flow specific implicit behaviours should be handled here
 			// before logging the event
-			f.ctx.LogEvent(result)
+			f.callback(result)
 			// export dynamic values from operators (i.e internal:true)
 			// add add it to template context
 			// this is a conflicting behaviour with iterate-all

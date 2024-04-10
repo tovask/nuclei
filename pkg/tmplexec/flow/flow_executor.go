@@ -50,6 +50,9 @@ type FlowExecutor struct {
 	// these are keys whose values are meant to be flatten before executing
 	// a request ex: if dynamic extractor returns ["value"] it will be converted to "value"
 	flattenKeys []string
+
+	// callback function to process output
+	callback protocols.OutputEventCallback
 }
 
 // NewFlowExecutor creates a new flow executor from a list of requests
@@ -205,6 +208,8 @@ func (f *FlowExecutor) ExecuteWithResults(ctx *scan.ScanContext, callback protoc
 		return fmt.Errorf("output callback cannot be nil")
 		// sure, but when it is called?
 	}
+	f.callback = callback
+
 	// before running register set of builtins
 	if err := runtime.Set("set", func(call goja.FunctionCall) goja.Value {
 		varName := call.Argument(0).Export()
