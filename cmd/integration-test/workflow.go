@@ -162,7 +162,7 @@ type workflowMultiProtocolKeyValueShare struct{}
 
 // Execute executes a test case and returns an error if occurred
 func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
-
+	// TODO document
 	router := httprouter.New()
 	router.GET("/path1", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprintf(w, "href=\"blog.projectdiscovery.io\"")
@@ -178,7 +178,7 @@ func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
 		return err
 	}
 
-	return expectResultsCount(results, 1)
+	return expectResultsCount(results, 2)
 }
 
 // type workflowSharedCookies struct{}
