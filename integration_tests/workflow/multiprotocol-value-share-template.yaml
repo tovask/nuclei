@@ -7,7 +7,7 @@ info:
 
 dns:
   - name: "{{extracted}}"
-    type: CNAME
+    type: PTR
     matchers:
       - type: word
         words:
