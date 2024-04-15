@@ -27,6 +27,7 @@ TODO:
  - update DESIGN.md
  - bugs:
 	 - https://github.com/tovask/nuclei/commit/03718469c47ea6296593865f8d64377fbf3471d7#diff-47ab30eed712e7b31af2c38be7ac02459f075910f108f0ba727dc6ac0706ed77R25
+	 - the DNS request executer verifies the input of the whole scan instead of the actual request that can differ => incorrect error: "cannot use IP address as DNS input"
 */
 
 // executeWorkflow runs a workflow on an input and returns true or false
