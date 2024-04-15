@@ -29,7 +29,7 @@ var workflowTestcases = []TestCaseInfo{
 }
 
 func init() {
-	// sign code templates, unless they are disabled
+	// sign code templates (unless they are disabled)
 	if !isCodeDisabled() {
 		// allow local file access to load content of file references in template
 		// in order to sign them for testing purposes
@@ -209,11 +209,12 @@ type workflowMultiProtocolKeyValueShare struct{}
 
 // Execute executes a test case and returns an error if occurred
 func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
-	// TODO document
 	router := httprouter.New()
+	// the response of path1 contains a domain that will be extracted and shared with the second template
 	router.GET("/path1", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprintf(w, "href=\"blog.projectdiscovery.io\"")
 	})
+	// path2 responds with the value of the "extracted" query parameter, e.g.: /path2?extracted=blog.projectdiscovery.io => blog.projectdiscovery.io
 	router.GET("/path2", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprintf(w, "%s", r.URL.Query().Get("extracted"))
 	})
