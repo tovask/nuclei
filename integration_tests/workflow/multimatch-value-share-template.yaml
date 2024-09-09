@@ -9,6 +9,11 @@ http:
   - path:
       - "{{BaseURL}}/path1?v=1"
       - "{{BaseURL}}/path1?v=2"
+    matchers:
+      - type: word
+        name: test-matcher
+        words:
+          - "href"
     extractors:
       - type: regex
         part: body

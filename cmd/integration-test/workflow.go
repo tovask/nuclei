@@ -224,7 +224,7 @@ func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
-	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, debug)
+	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, true) //debug)
 	if err != nil {
 		return err
 	}
@@ -237,6 +237,7 @@ type workflowMultiMatchKeyValueShare struct{}
 // Execute executes a test case and returns an error if occurred
 func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 	fmt.Fprint(os.Stdout, "Start workflowMultiMatchKeyValueShare\n")
+	fmt.Fprint(os.Stdout, "Env vars:", os.Environ(), "\n")
 	var sentData []string
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -244,7 +245,7 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 		fmt.Fprintf(w, "This is test matcher text")
 	})
 	router.GET("/path1", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		fmt.Fprint(os.Stdout, "[Server] GET /path1\n") // debug TODO: remove
+		fmt.Fprint(os.Stdout, "[Server] GET /path1\tv:", r.URL.Query().Get("v"), "\n") // debug TODO: remove
 		fmt.Fprintf(w, "href=\"test-value-%s\"", r.URL.Query().Get("v"))
 	})
 	router.GET("/path2", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -257,13 +258,14 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
+	fmt.Fprint(os.Stdout, "Run Nuclei\n")
 	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, true) //debug)
 	if err != nil {
 		return err
 	}
 
 	if !slices.Contains(sentData, "test-value-1") || !slices.Contains(sentData, "test-value-2") {
-		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s\nSent Data:\n\t%s\n", strings.Join(results, "\n\t"), strings.Join(sentData, "\n\t"))
+		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s\nSent Data:\n\t%s", strings.Join(results, "\n\t"), strings.Join(sentData, "\n\t"))
 	}
 	return expectResultsCount(results, 3)
 }
