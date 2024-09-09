@@ -224,7 +224,7 @@ func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
-	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, true) //debug)
+	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, debug)
 	if err != nil {
 		return err
 	}
@@ -238,7 +238,7 @@ type workflowMultiMatchKeyValueShare struct{}
 func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 	fmt.Fprint(os.Stdout, "Start workflowMultiMatchKeyValueShare\n")
 	fmt.Fprint(os.Stdout, "Env vars:", os.Environ(), "\n")
-	var sentData []string
+	var receivedData []string
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		fmt.Fprint(os.Stdout, "[Server] GET /\n") // debug TODO: remove
@@ -250,7 +250,7 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 	})
 	router.GET("/path2", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		body, _ := io.ReadAll(r.Body)
-		sentData = append(sentData, string(body))
+		receivedData = append(receivedData, string(body))
 		fmt.Fprint(os.Stdout, "[Server] GET /path2, data:", string(body), "\n") // debug TODO: remove
 		fmt.Fprintf(w, "test-value")
 	})
@@ -264,8 +264,9 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 		return err
 	}
 
-	if !slices.Contains(sentData, "test-value-1") || !slices.Contains(sentData, "test-value-2") {
-		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s\nSent Data:\n\t%s", strings.Join(results, "\n\t"), strings.Join(sentData, "\n\t"))
+	// TODO comment, why in brackets
+	if !slices.Contains(receivedData, "[test-value-1]") || !slices.Contains(receivedData, "[test-value-2]") {
+		return fmt.Errorf("incorrect data: TODO\tReceived Data:\n\t%s\nResults:\n\t%s", strings.Join(receivedData, "\n\t"), strings.Join(results, "\n\t"))
 	}
 	return expectResultsCount(results, 3)
 }
