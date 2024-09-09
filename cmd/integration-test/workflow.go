@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"slices"
 	"strings"
 
@@ -235,23 +236,24 @@ type workflowMultiMatchKeyValueShare struct{}
 
 // Execute executes a test case and returns an error if occurred
 func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
-	fmt.Println("Start workflowMultiMatchKeyValueShare")
+	fmt.Fprint(os.Stdout, "Start workflowMultiMatchKeyValueShare\n")
 	var sentData []string
 	router := httprouter.New()
 	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		fmt.Println("[Server] GET /") // debug TODO: remove
+		fmt.Fprint(os.Stdout, "[Server] GET /\n") // debug TODO: remove
 		fmt.Fprintf(w, "This is test matcher text")
 	})
 	router.GET("/path1", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		fmt.Println("[Server] GET /path1") // debug TODO: remove
-		fmt.Fprintf(w, "href=\"test-value-%s\"", r.URL.Query().Get("extracted"))
+		fmt.Fprint(os.Stdout, "[Server] GET /path1\n") // debug TODO: remove
+		fmt.Fprintf(w, "href=\"test-value-%s\"", r.URL.Query().Get("v"))
 	})
 	router.GET("/path2", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		body, _ := io.ReadAll(r.Body)
 		sentData = append(sentData, string(body))
-		fmt.Println("[Server] GET /path2, data:", body) // debug TODO: remove
+		fmt.Fprint(os.Stdout, "[Server] GET /path2, data:", string(body), "\n") // debug TODO: remove
 		fmt.Fprintf(w, "test-value")
 	})
+	fmt.Fprint(os.Stdout, "Starting the server...\n")
 	ts := httptest.NewServer(router)
 	defer ts.Close()
 
@@ -261,7 +263,7 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 	}
 
 	if !slices.Contains(sentData, "test-value-1") || !slices.Contains(sentData, "test-value-2") {
-		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s", strings.Join(results, "\n\t"))
+		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s\nSent Data:\n\t%s\n", strings.Join(results, "\n\t"), strings.Join(sentData, "\n\t"))
 	}
 	return expectResultsCount(results, 3)
 }
