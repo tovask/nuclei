@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httptest"
+	"slices"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
@@ -25,6 +26,7 @@ var workflowTestcases = []TestCaseInfo{
 	{Path: "workflow/dns-value-share-workflow.yaml", TestCase: &workflowDnsKeyValueShare{}},
 	{Path: "workflow/code-value-share-workflow.yaml", TestCase: &workflowCodeKeyValueShare{}, DisableOn: isCodeDisabled}, // isCodeDisabled declared in code.go
 	{Path: "workflow/multiprotocol-value-share-workflow.yaml", TestCase: &workflowMultiProtocolKeyValueShare{}},
+	{Path: "workflow/multimatch-value-share-workflow.yaml", TestCase: &workflowMultiMatchKeyValueShare{}},
 	{Path: "workflow/shared-cookie.yaml", TestCase: &workflowSharedCookies{}},
 }
 
@@ -227,6 +229,41 @@ func (h *workflowMultiProtocolKeyValueShare) Execute(filePath string) error {
 	}
 
 	return expectResultsCount(results, 2)
+}
+
+type workflowMultiMatchKeyValueShare struct{}
+
+// Execute executes a test case and returns an error if occurred
+func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
+	fmt.Println("Start workflowMultiMatchKeyValueShare")
+	var sentData []string
+	router := httprouter.New()
+	router.GET("/", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("[Server] GET /") // debug TODO: remove
+		fmt.Fprintf(w, "This is test matcher text")
+	})
+	router.GET("/path1", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		fmt.Println("[Server] GET /path1") // debug TODO: remove
+		fmt.Fprintf(w, "href=\"test-value-%s\"", r.URL.Query().Get("extracted"))
+	})
+	router.GET("/path2", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+		body, _ := io.ReadAll(r.Body)
+		sentData = append(sentData, string(body))
+		fmt.Println("[Server] GET /path2, data:", body) // debug TODO: remove
+		fmt.Fprintf(w, "test-value")
+	})
+	ts := httptest.NewServer(router)
+	defer ts.Close()
+
+	results, err := testutils.RunNucleiWorkflowAndGetResults(filePath, ts.URL, true) //debug)
+	if err != nil {
+		return err
+	}
+
+	if !slices.Contains(sentData, "test-value-1") || !slices.Contains(sentData, "test-value-2") {
+		return fmt.Errorf("incorrect result: TODO\nResults:\n\t%s", strings.Join(results, "\n\t"))
+	}
+	return expectResultsCount(results, 3)
 }
 
 type workflowSharedCookies struct{}
