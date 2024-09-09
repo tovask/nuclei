@@ -266,7 +266,7 @@ func (h *workflowMultiMatchKeyValueShare) Execute(filePath string) error {
 
 	// TODO comment, why in brackets
 	if !slices.Contains(receivedData, "[test-value-1]") || !slices.Contains(receivedData, "[test-value-2]") {
-		return fmt.Errorf("incorrect data: TODO\tReceived Data:\n\t%s\nResults:\n\t%s", strings.Join(receivedData, "\n\t"), strings.Join(results, "\n\t"))
+		return fmt.Errorf("incorrect data: TODO\nReceived Data:\n\t%s\nResults:\n\t%s", strings.Join(receivedData, "\n\t"), strings.Join(results, "\n\t"))
 	}
 	return expectResultsCount(results, 3)
 }
